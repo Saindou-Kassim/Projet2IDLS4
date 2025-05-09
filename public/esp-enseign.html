@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Créer un Examen</title>
+  <link rel="stylesheet" href="esp_en.css">
+</head>
+<body>
+    <div class="container">
+    
+    
+        <div class="gauche">
+            <h1>Bienvenue Enseignant </h1>
+            <p>Créez vos examens facilement, gérez vos questions et partagez vos liens avec vos étudiants.</p>
+            <p>Commencez maintenant en remplissant le formulaire à droite ➡️</p>
+        </div>
+
+        
+        <div class="droite">
+        <form id="creerExamen">
+            <h2>Créer un examen</h2>
+
+            <div class="form-group">
+                <label for="titre">Titre</label>
+                <input type="text" id="titre" name="titre" placeholder="Exemple : Examen S4" required>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Description</label>
+                <textarea id="description" name="description" placeholder="Exemple : QCM + Questions ouvertes" rows="3" required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="public">Public ciblé</label>
+                <input type="text" id="public" name="public" placeholder="Exemple : 2e année MIP" required>
+            </div>
+
+            <button type="submit">Créer l’examen</button>
+            <hr>
+            <button onclick="window.location.href='gestion_examens.html'">Voir les examens</button>
+        </form>
+
+        </div>
+
+    </div>
+
+    <script src="examen.js"></script>
+</body>
+</html>
