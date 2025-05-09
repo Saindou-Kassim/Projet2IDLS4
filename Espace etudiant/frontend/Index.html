@@ -1,0 +1,145 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Espace Étudiant</title>
+    <link href="style.css" rel="stylesheet">
+</head>
+<body>
+  <div class="login-container">
+    <!-- Colonne gauche : message de bienvenue -->
+    <div class="login-left">
+      <h1>Bonjour bienvenu!</h1>
+      <p>Est ce que vous avez un compte ?</p>
+      <button class="btn-inscrire">S'inscrire</button>
+    </div>
+    <!-- Colonne droite : formulaire de connexion -->
+    <div class="login-right">
+      <h2>Connexion</h2>
+      <form>
+        <div class="form-group">
+          <input type="text" placeholder="Said@gmail.com" required>
+          <span class="input-icon">
+            <!-- Icône email (SVG ou Unicode) -->
+            &#9993;
+          </span>
+        </div>
+        <div class="form-group">
+          <input type="password" placeholder="********" required>
+          <span class="input-icon">
+            <!-- Icône cadenas (SVG ou Unicode) -->
+            &#128274;
+          </span>
+        </div>
+        <a href="#" class="forgot-link">Mot de passe oublié</a>
+        <button type="submit" class="btn-connexion">se connecter</button>
+        <div class="social-text">
+          Ou se connecter à travers les plateformes :
+        </div>
+        <div class="social-login">
+          <button type="button" title="Google" class="social-btn">G</button>
+          <button type="button" title="Facebook" class="social-btn">f</button>
+          <button type="button" title="GitHub" class="social-btn">&#xf09b;</button>
+          <button type="button" title="LinkedIn" class="social-btn">in</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <script>
+  // Exemple de questions
+  let questions = [
+      { text: "2 + 2 = ?", answer: "4" },
+      { text: "Capital de la France ?", answer: "Paris" }
+  ];
+  let current = 0, score = 0, timer, timePerQuestion = 15;
+  let timerInterval;
+  
+  // Afficher l'espace examen (à appeler après connexion)
+  function showExamSection() {
+      document.getElementById('exam-section').style.display = '';
+      askGeolocation();
+  }
+  
+  // Demande de géolocalisation obligatoire
+  function askGeolocation() {
+      if (!navigator.geolocation) {
+          alert("La géolocalisation n'est pas supportée par votre navigateur.");
+          return;
+      }
+      navigator.geolocation.getCurrentPosition(
+          pos => startExam(),
+          err => alert("Vous devez autoriser la géolocalisation pour passer l'examen.")
+      );
+  }
+  
+  // Lancer l'examen
+  function startExam() {
+      current = 0;
+      score = 0;
+      document.getElementById('exam-score').style.display = 'none';
+      showQuestion();
+  }
+  
+  // Afficher la question courante
+  function showQuestion() {
+      if (current >= questions.length) {
+          endExam();
+          return;
+      }
+      const examBody = document.getElementById('exam-body');
+      examBody.innerHTML = `
+          <p>${questions[current].text}</p>
+          <input type="text" id="answer" placeholder="Votre réponse">
+      `;
+      document.getElementById('next-question').style.display = 'none';
+      startTimer();
+  }
+  
+  // Timer pour chaque question
+  function startTimer() {
+      timer = timePerQuestion;
+      updateTimer();
+      clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+          timer--;
+          updateTimer();
+          if (timer <= 0) {
+              clearInterval(timerInterval);
+              nextQuestion();
+          }
+      }, 1000);
+  }
+  
+  function updateTimer() {
+      document.getElementById('timer').textContent = `Temps restant : ${timer}s`;
+      document.getElementById('next-question').style.display = timer <= 0 ? '' : 'none';
+  }
+  
+  // Passer à la question suivante
+  document.getElementById('next-question').onclick = nextQuestion;
+  
+  function nextQuestion() {
+      clearInterval(timerInterval);
+      const answerInput = document.getElementById('answer');
+      if (answerInput && answerInput.value.trim().toLowerCase() === questions[current].answer.toLowerCase()) {
+          score += 100 / questions.length;
+      }
+      current++;
+      showQuestion();
+  }
+  
+  // Afficher le score final
+  function endExam() {
+      document.getElementById('exam-body').innerHTML = '';
+      document.getElementById('timer').textContent = '';
+      document.getElementById('next-question').style.display = 'none';
+      document.getElementById('exam-score').style.display = '';
+      document.getElementById('final-score').textContent = Math.round(score);
+  }
+  
+  // Exemple d'appel après connexion réussie :
+  /* showExamSection(); */
+</script>
+</body>
+</html>
