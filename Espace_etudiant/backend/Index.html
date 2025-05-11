@@ -1,0 +1,296 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Espace Étudiant</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+  <link href="style.css" rel="stylesheet" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      width: 400px;
+      margin: 50px auto;
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .input-box {
+      position: relative;
+      margin-bottom: 20px;
+    }
+    .input-box input {
+      width: 100%;
+      padding: 10px 35px 10px 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    .input-box i {
+      position: absolute;
+      right: 10px;
+      top: 12px;
+    }
+    .btn {
+      background: #4CAF50;
+      color: white;
+      border: none;
+      padding: 10px;
+      width: 100%;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .btn:hover {
+      background: #45a049;
+    }
+    .social-icons {
+      text-align: center;
+      margin-top: 10px;
+    }
+    .social-icons a {
+      margin: 0 10px;
+      font-size: 20px;
+      color: #444;
+    }
+    #exam-section {
+      display: none;
+      max-width: 500px;
+      margin: 40px auto;
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    #exam-body p {
+      font-weight: bold;
+    }
+    #answer {
+      width: 100%;
+      padding: 8px;
+      margin-top: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    #next-question {
+      padding: 10px;
+      background: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      display: none;
+      cursor: pointer;
+    }
+    #next-question:hover {
+      background: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <form id="login-form">
+      <h1 style="text-align:center;">Connexion</h1>
+      <div class="input-box">
+        <input type="email" placeholder="Adresse email" name="email" required />
+        <i class="bx bxs-envelope"></i>
+      </div>
+      <div class="input-box">
+        <input type="password" placeholder="Mot de passe" name="password" required />
+        <i class="bx bxs-lock-alt"></i>
+      </div>
+      <button type="submit" class="btn">Se connecter</button>
+      <p style="text-align: center;">Ou se connecter via :</p>
+      <div class="social-icons">
+        <a href="http://localhost:3000/auth/google"><i class="bx bxl-google"></i></a>
+        <a href="http://localhost:3000/auth/facebook"><i class="bx bxl-facebook"></i></a>
+        <a href="http://localhost:3000/auth/github"><i class="bx bxl-github"></i></a>
+        <a href="http://localhost:3000/auth/linkedin"><i class="bx bxl-linkedin"></i></a>
+      </div>
+    </form>
+  </div>
+
+  <div id="exam-section">
+    <div id="timer"></div>
+    <div id="exam-body"></div>
+    <button id="next-question">Question suivante</button>
+    <div id="exam-score" style="display: none;">
+      <p>Votre score : <span id="final-score"></span>/100</p>
+    </div>
+  </div>
+
+  <script>
+    const loginForm = document.getElementById("login-form");
+
+    loginForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = loginForm.email.value;
+      const password = loginForm.password.value;
+      try {
+        const res = await fetch("http://localhost:3000/api/user/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+        });
+        const data = await res.json();
+        if (res.ok) {
+          localStorage.setItem("token", data.token);
+          showExamSection();
+        } else {
+          alert(data.message || "Erreur de connexion");
+        }
+      } catch (err) {
+        alert("Connexion impossible au serveur.");
+      }
+    });
+
+    function showExamSection() {
+      askGeolocation(async () => {
+        questions = await fetchQuestions();
+        if (!questions.length) return alert("Aucune question disponible.");
+        current = 0;
+        score = 0;
+        document.getElementById("exam-section").style.display = "block";
+        showQuestion();
+      });
+    }
+
+   /* function askGeolocation(callback) {
+      if (!navigator.geolocation) {
+        alert("La géolocalisation n'est pas supportée.");
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          console.log("Coordonnées : ", pos.coords);
+          callback();
+        },
+        () => alert("Vous devez autoriser la géolocalisation pour passer l'examen.")
+      );
+    }*/
+
+    function askGeolocation(callback) {
+  if (!navigator.geolocation) {
+    alert("La géolocalisation n'est pas supportée.");
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    async (pos) => {
+      console.log("Coordonnées : ", pos.coords);
+
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("Utilisateur non authentifié !");
+        return;
+      }
+
+      try {
+        const res = await fetch("http://localhost:3000/api/user/location", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + token
+          },
+          body: JSON.stringify({
+            latitude: pos.coords.latitude,
+            longitude: pos.coords.longitude
+          })
+        });
+
+        const data = await res.json();
+        if (!res.ok) {
+          console.error("Erreur géolocalisation :", data.message);
+          alert("Échec de l'envoi de votre position.");
+          return;
+        }
+
+        console.log("Géolocalisation enregistrée !");
+        callback();
+      } catch (error) {
+        console.error("Erreur d'envoi de la position :", error);
+        alert("Erreur lors de l'envoi de la position.");
+      }
+    },
+    () => alert("Vous devez autoriser la géolocalisation pour passer l'examen.")
+  );
+}
+
+
+    async function fetchQuestions() {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await fetch("http://localhost:3000/api/exam", {
+          headers: { Authorization: "Bearer " + token },
+        });
+        const data = await res.json();
+        return data.questions || [];
+      } catch (err) {
+        alert("Erreur de récupération des questions.");
+        return [];
+      }
+    }
+
+    let questions = [], current = 0, score = 0, timer = 0, interval;
+    const timePerQuestion = 15;
+
+    function showQuestion() {
+      if (current >= questions.length) return endExam();
+
+      const q = questions[current];
+      document.getElementById("exam-body").innerHTML = `
+        <p>${q.text}</p>
+        <input type="text" id="answer" placeholder="Votre réponse">
+      `;
+      document.getElementById("next-question").style.display = "none";
+      startTimer();
+    }
+
+    function startTimer() {
+      timer = timePerQuestion;
+      updateTimer();
+      clearInterval(interval);
+      interval = setInterval(() => {
+        timer--;
+        updateTimer();
+        if (timer <= 0) {
+          clearInterval(interval);
+          nextQuestion();
+        }
+      }, 1000);
+    }
+
+    function updateTimer() {
+      document.getElementById("timer").textContent = `Temps restant : ${timer}s`;
+      document.getElementById("next-question").style.display = timer <= 0 ? "" : "none";
+    }
+
+    document.getElementById("next-question").onclick = nextQuestion;
+
+    function nextQuestion() {
+      clearInterval(interval);
+      const input = document.getElementById("answer");
+      const correct = questions[current].answer?.toLowerCase();
+      if (input && input.value.trim().toLowerCase() === correct) {
+        score += 100 / questions.length;
+      }
+      current++;
+      showQuestion();
+    }
+
+    function endExam() {
+      document.getElementById("exam-body").innerHTML = "";
+      document.getElementById("timer").textContent = "";
+      document.getElementById("next-question").style.display = "none";
+      document.getElementById("exam-score").style.display = "block";
+      document.getElementById("final-score").textContent = Math.round(score);
+    }
+  </script>
+</body>
+</html>
