@@ -66,6 +66,9 @@ function chargerExamens() {
                             "public": "${escapeHtml(examen.public || '')}"
                         })'>Modifier</button>
                         <button class="delete" onclick="supprimerExamen('${examen._id}')">Supprimer</button>
+                        <button class="add-question" onclick="location.href='http://localhost:3000/ajout_questions.html?examId=${examen._id}'">Ajouter une question</button>
+
+
                     </td>
                 `;
                 espaceHtml.appendChild(tr);
@@ -134,6 +137,40 @@ function afficherFormulaireModification(button, examen) {
     ligne.parentNode.insertBefore(formulaireLigne, ligne.nextSibling);
 }
 
+function redirigerVersAjoutQuestions(examId) {
+    window.location.href = `http://localhost:3000/ajout_questions.html?examId=${examId}`;
+
+}
+function ajouterQuestion(event, examenId, form) {
+    event.preventDefault();
+
+    const data = {
+        question: form.question.value,
+        options: [
+            form.option1.value,
+            form.option2.value,
+            form.option3.value,
+            form.option4.value
+        ],
+        reponse: form.reponse.value
+    };
+
+    fetch(`http://localhost:3000/examens/${examenId}/questions`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    })
+    .then(res => {
+        if (res.ok) {
+            chargerExamens();  // Recharge la liste des examens pour voir la question ajoutée
+        } else {
+            throw new Error("Erreur serveur");
+        }
+    })
+    .catch(err => console.error("Erreur lors de l'ajout de la question :", err));
+}
+
+
 function mettreAJourExamen(event, id, form) {
     event.preventDefault();
 
@@ -157,3 +194,8 @@ function mettreAJourExamen(event, id, form) {
         })
         .catch(err => console.error("Erreur lors de la mise à jour :", err));
 }
+
+
+
+//<button onclick="afficherFormulaireQuestion(this, 'EXAM_ID')">Ajouter question</button>
+// <button type="button" onclick="this.closest('tr').remove()">Annuler</button>
