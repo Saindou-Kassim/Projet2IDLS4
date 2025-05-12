@@ -7,10 +7,11 @@ const Examens = require('./models/Examens');
 const app = express();
 
 
-mongoose.connect('mongodb://localhost:27017/examens_db', {
+mongoose.connect('mongodb://localhost:27017/examens_db') /*{
     useNewUrlParser: true,
     useUnifiedTopology: true
-})
+})*/
+
 .then(() => console.log('connecté à MongoDB'))
 .catch(err => console.error('Erreur de connexion à MongoDB :', err));
 
