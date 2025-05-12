@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ajouter une question</title>
+  <link rel="stylesheet" href="ajout_questions.css">
+</head>
+<body>
+
+  <h1>Ajouter une question</h1>
+
+  <!-- Sélecteur de type de question -->
+  <label for="questionType">Choisir le type de question :</label>
+  <select id="questionType" onchange="toggleFields()">
+    <option value="qcm">QCM</option>
+    <option value="directe">Directe</option>
+  </select>
+
+  
+
+  
+     Formulaire QCM 
+        <div id="formQCM">
+            <h3>Énoncé de la question QCM :</h3>
+            <input type="text" id="questionQCM" placeholder="Saisir la question">
+
+            <h4>Options :</h4>
+            <div id="optionsContainer"></div>
+            <button type="button" onclick="addOption()">Ajouter une option</button>
+            
+            <h4>Choisir la ou les bonnes réponses :</h4>
+            <div id="bonneReponseContenair"></div>
+
+            <h4>Affectation de la note :</h4>
+            <input type="number" id="noteQCM" min="0" placeholder="saisir la note pour la question">
+
+            <h4>Durée de la question (secondes) :</h4>
+            <input type="number" id="dureeQCM" min="1" placeholder="saisir la durée en secondes">
+
+            <h4>Joindre un fichier (image, audio, vidéo) :</h4>
+            <input type="file" id="fileQCM" name="file" accept="image/*,audio/*,video/*">
+
+            <br><br>
+            <button onclick="enregistrerQuestion('qcm')">Enregistrer</button>
+        </div>
+
+  
+  <!-- Formulaire Question Directe -->
+        <div id="formDirecte" class="hidden">
+            <h3>Énoncé de la question directe :</h3>
+            <input type="text" id="questionDirecte" placeholder="Saisir la question">
+
+            <h4>Réponse attendue :</h4>
+            <input type="text" id="reponseDirecte" placeholder="Saisir la bonne réponse">
+
+            <h4>Taux de tolérance (en pourcentage) :</h4>
+            <input type="number" id="tolerance" placeholder="Exemple : 10" min="0" max="100">
+
+            <h4>Joindre un fichier (image, audio, vidéo) :</h4>
+            <input type="file" id="fileDirecte" name="file" accept="image/*,audio/*,video/*">
+
+            <br><br>
+            <button onclick="enregistrerQuestion('directe')">Enregistrer</button>
+        </div>
+
+  
+
+  <!-- Inclusion du JavaScript -->
+  <script src="ajout_questions.js"></script>
+</body>
+</html>
+
+
+
+
+
+
+    
+
+
+
+
+
+ <!--<h1>Ajouter une question</h1>
+
+  <label for="questionType">Choisir le type de question :</label>
+  <select id="questionType">
+    <option value="qcm">QCM</option>
+    <option value="libre">Libre</option>
+  </select>
+
+  
+  <div id="formQCM">
+    <h3>Énoncé de la question QCM :</h3>
+    <input type="text" id="questionQCM" placeholder="Saisir la question">
+
+    <h4>Options</h4>
+    <div id="optionsContainer"></div>
+    <button type="button" onclick="addOption()">Ajouter une option</button>
+    <br><br>
+    <button onclick="enregistrerQuestion('qcm')">Enregistrer</button>
+  </div>
+
+  
+  <div id="formLibre" class="hidden">
+    <h3>Énoncé de la question Libre :</h3>
+    <input type="text" id="questionLibre" placeholder="Saisir la question">
+
+    <h4>Réponse attendue :</h4>
+    <input type="text" id="reponseLibre" placeholder="Saisir la bonne réponse">
+    <br><br>
+    <button onclick="enregistrerQuestion('libre')">Enregistrer</button>
+  </div>-->
+
+  <!--<h1>Ajouter une question à l'examen</h1>
+
+  <form id="questionForm">
+    <label for="questionType">Type de question :</label>
+    <select id="questionType" onchange="toggleFields()">
+      <option value="libre">Libre</option>
+      <option value="qcm">QCM</option>
+    </select>
+
+
+    <div class="section">
+      <label for="question">Énoncé de la question :</label><br>
+      <input type="text" id="question" placeholder="Saisir la question" required>
+    </div>
+
+    
+    <div id="libreFields" class="section">
+      <label for="reponseLibre">Réponse attendue :</label><br>
+      <input type="text" id="reponseLibre" placeholder="Saisir la bonne réponse">
+    </div>
+
+    <div id="qcmFields" class="hidden">
+      <h3>Options QCM</h3>
+      <div id="optionsContainer"></div>
+      <button type="button" onclick="addOption()">Ajouter une option</button>
+    </div>
+
+    <label for="question">Question :</label>
+    <input type="text" id="question" placeholder="Saisir la question">
+
+    <button type="button" onclick="enregistrerQuestion()">Enregistrer la question</button>
+  </form>-->
