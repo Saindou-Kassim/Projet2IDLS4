@@ -32,16 +32,20 @@ const upload = multer({
 
 // Middleware pour valider les données des requêtes
 function validateQuestionData(req, res, next) {
-    const { type, examenId, question, reponses, reponseCorrecte, reponseAttendue, tolerance } = req.body;
+    const { type, examenId, question, reponses, reponseCorrecte, note, duree, reponseAttendue, tolerance } = req.body;
 
     if (!type || !examenId || !question) {
         return res.status(400).json({ message: "Données manquantes : type, examenId ou question" });
     }
-
+//moi ajout
+    if (type === 'qcm' && (!note || !duree)) {
+    return res.status(400).json({ message: "La note et la durée sont requises pour un QCM" });
+}
+/*
     if (type === 'qcm' && (!reponses || !reponseCorrecte)) {
         return res.status(400).json({ message: "Les réponses et la bonne réponse sont requises pour un QCM" });
     }
-
+*/
     if (type === 'libre' && (!reponseAttendue || !tolerance)) {
         return res.status(400).json({ message: "La réponse attendue et la tolérance sont requises pour une question libre" });
     }
@@ -52,8 +56,13 @@ function validateQuestionData(req, res, next) {
 // Route pour enregistrer une question avec gestion de fichier
 app.post('/examens/:examenId/questions', upload.single('file'), validateQuestionData, async (req, res) => {
     const { examenId } = req.params;
-    const { type, question, reponses, reponseCorrecte, reponseAttendue, tolerance } = req.body;
+    const { type, question, reponses, reponseCorrecte, reponseAttendue, tolerance, note, duree } = req.body;
+
+    console.log("Données reçues pour la question :", { note, duree });
+
     const file = req.file;
+
+    //console.log('TYPE REÇU :', type); // <-- AJOUT ICI
 
     let nouvelleQuestion;
     try {
@@ -65,15 +74,19 @@ app.post('/examens/:examenId/questions', upload.single('file'), validateQuestion
                 question,
                 reponses,
                 reponseCorrecte: bonneReponse,
+                note,
+                duree,
                 file: file ? file.path : null
             });
-        } else if (type === 'libre') {
+        } else if (type === 'directe' || type === 'libre') {
             nouvelleQuestion = new Question({
                 type: 'libre',
                 examenId,
                 question,
                 reponseAttendue,
                 tolerance,
+                note,
+                duree,
                 file: file ? file.path : null
             });
         }
@@ -219,7 +232,22 @@ app.use((req, res) => {
     res.status(404).json({ error: 'Page non trouvée' });
 });
 
+//mon ajout
+// Route pour récupérer toutes les questions
+app.get('/questions', async (req, res) => {
+    try {
+        const questions = await Question.find();
+        res.json(questions);
+    } catch (error) {
+        console.error('Erreur lors de la récupération des questions:', error);
+        res.status(500).json({ message: 'Erreur serveur' });
+    }
+});
+
+
+
 // Démarrage du serveur
+const port = 3000;
 app.listen(port, () => {
     console.log(`Serveur démarré sur le port ${port}`);
 });
